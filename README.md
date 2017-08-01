@@ -1,0 +1,9 @@
+# VideoView_MediaPlayer_TextureView_Test
+
+利用ViewVideo播放本地视频和网络视频
+利用MediaPlayer+SurfaceVIew播放本地视频，网络视频，M3U8格式的网络直播视频流
+利用MediaPlayer+TextureView播放M3U8格式的哇、网络视频直播流
+
+
+VideoView和SurfaceView 都是软解码，即利用gpu解码播放，几乎不利用cpu资源。
+TextureView是硬解码，即利用cpu景星街吗播放，占用大量cpu资源，开始播放会出现短暂资源加载的卡顿
