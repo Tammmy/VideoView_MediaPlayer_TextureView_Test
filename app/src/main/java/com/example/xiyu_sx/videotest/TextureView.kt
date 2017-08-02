@@ -46,7 +46,6 @@ class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener {
     }
 
     override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean {
-        surface = null!!
         mediaPlayer.stop()
         mediaPlayer.release()
         return true
@@ -63,24 +62,16 @@ class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener {
 
 
     override fun onSurfaceTextureAvailable(p0: SurfaceTexture?, p1: Int, p2: Int) {
-        Log.e("tttttttttt", "tttttttttttt")
-
-        Log.e("tttttttttt", "tttttttttttt")
         var surface = Surface(p0)
         val uri = Uri.parse("http://streaming.youku.com/live2play/klcd11.m3u8?auth_key=1527043875-0-0-ff81b5c5e9c04df7ab88b3f20ddba94e")
         val mediaPlayer = MediaPlayer()
         mediaPlayer.reset()
-        Log.e("tttttttttt", "tttttttttttt1")
         mediaPlayer.setDataSource(this, uri)
         mediaPlayer.setSurface(surface)
-        Log.e("tttttttttt", "tttttttttttt2")
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
         mediaPlayer.prepare()
-        Log.e("tttttttttt", "tttttttttttt3")
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.start()
-            Log.e("tttttttttt", "tttttttttttt")
-
         }
     }
 

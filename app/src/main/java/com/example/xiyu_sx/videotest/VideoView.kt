@@ -80,7 +80,6 @@ class VideoView : AppCompatActivity(){
         path= Environment.getExternalStorageDirectory().absolutePath+"/star.mp4"
         file= File(path)
         if(file.exists()) {
-
             video_view.setVideoPath(file.absolutePath)
             video_view.setMediaController(mediacontroller)
             mediacontroller.setMediaPlayer(video_view)

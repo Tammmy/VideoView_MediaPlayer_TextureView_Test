@@ -21,7 +21,7 @@ class MyMediaPlayer : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api
+        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api 19:Android 4.4
             val v = this.window.decorView
             v.systemUiVisibility = View.GONE
         } else if (Build.VERSION.SDK_INT >= 19) {
@@ -33,12 +33,12 @@ class MyMediaPlayer : AppCompatActivity() {
             decorView.setSystemUiVisibility(uiOptions)
             window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         }
-
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         setContentView(R.layout.media_play)
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+
+
         surfaceView.setOnClickListener {
             if(flag==1) {
                 flag=2
