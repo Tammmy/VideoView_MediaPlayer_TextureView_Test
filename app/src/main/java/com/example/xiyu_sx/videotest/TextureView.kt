@@ -7,13 +7,14 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
-import android.view.Surface
-import android.view.TextureView
-import android.view.View
-import android.view.WindowManager
 import kotlinx.android.synthetic.main.texture_view.*
 import android.content.pm.ActivityInfo
-
+import android.view.*
+import android.view.TextureView
+import android.widget.SeekBar
+import kotlinx.android.synthetic.main.media_play.*
+import com.example.xiyu_sx.videotest.R.id.seekBar
+import kotlinx.android.synthetic.main.play_layout.*
 
 
 /**
@@ -23,17 +24,18 @@ class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener {
 
     lateinit var surface: Surface
     lateinit var mediaPlayer: MediaPlayer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //
-        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api
+        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) {     // lower api
             val v = this.window.decorView
             v.systemUiVisibility = View.GONE
         } else if (Build.VERSION.SDK_INT >= 19) {
             //for new api versions.
             val decorView = window.decorView
             val uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-            View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+            View.SYSTEM_UI_FLAG_FULLSCREEN      // hide status bar
             View.SYSTEM_UI_FLAG_IMMERSIVE
             decorView.setSystemUiVisibility(uiOptions)
             window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
@@ -43,11 +45,27 @@ class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener {
 
         Log.e("tttttttttt", "tttttttttttt")
         textureView.setSurfaceTextureListener(this)
+        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                // 当拖动条的滑块位置发生改变时触发该方法,在这里直接使用参数progress，即当前滑块代表的进度值
+                text1.setText("Value:" + Integer.toString(progress))
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                Log.e("------------", "开始滑动！")
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                Log.e("------------", "停止滑动！")
+            }
+        })
     }
 
+
+
     override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean {
-        mediaPlayer.stop()
-        mediaPlayer.release()
+//        mediaPlayer.stop()
+//        mediaPlayer.release()
         return true
     }
 
@@ -72,17 +90,12 @@ class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener {
         mediaPlayer.prepare()
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.start()
-        }
-    }
 
-    override fun onResume() {
-        /**
-         * 设置为横屏
-         */
-        if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+
         }
-        super.onResume()
     }
 
 }

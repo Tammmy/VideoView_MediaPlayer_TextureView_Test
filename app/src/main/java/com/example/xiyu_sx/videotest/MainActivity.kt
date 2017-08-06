@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() ,View.OnClickListener {
             R.id.bt_one->{
                 val intent =Intent()
                 intent.putExtra("message","one")
-                intent.setClass(this, VideoView::class.java)
+                intent.setClass(this, com.example.xiyu_sx.videotest.VideoView::class.java)
                 startActivity(intent)
             }
             R.id.bt_two->{
@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() ,View.OnClickListener {
             R.id.bt_three->{
                 val intent =Intent()
                 intent.putExtra("message","three")
-                intent.setClass(this,VideoView::class.java)
+                intent.setClass(this,com.example.xiyu_sx.videotest.VideoView::class.java)
                 startActivity(intent)
             }
             R.id.bt_four->{

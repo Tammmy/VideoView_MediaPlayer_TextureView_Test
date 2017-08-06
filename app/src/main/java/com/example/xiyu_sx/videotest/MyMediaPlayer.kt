@@ -1,5 +1,7 @@
 package com.example.xiyu_sx.videotest
 
+import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.media.AudioManager
 import android.media.MediaPlayer
@@ -9,56 +11,37 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.*
 import kotlinx.android.synthetic.main.media_play.*
-
+import kotlinx.android.synthetic.main.play_layout.*
 
 
 /**
  * Created by xiyu_sx on 2017/7/25.
  */
 class MyMediaPlayer : AppCompatActivity() {
+    var handler = Handler()
+
+    var runnable: Runnable = object : Runnable {
+        override fun run() {
+            // TODO Auto-generated method stub
+            //要做的事情
+            seekBar.setProgress(mediaPlayer.currentPosition)
+            Log.e("ttttttttt",mediaPlayer.currentPosition
+                    .toString())
+            handler.postDelayed(this, 1000)
+        }
+    }
+
     var flag =1
     var mediaPlayer = MediaPlayer()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api 19:Android 4.4
-            val v = this.window.decorView
-            v.systemUiVisibility = View.GONE
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            //for new api versions.
-            val decorView = window.decorView
-            val uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-            View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-            View.SYSTEM_UI_FLAG_IMMERSIVE
-            decorView.setSystemUiVisibility(uiOptions)
-            window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-        }
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
-
         setContentView(R.layout.media_play)
-
-
-
         surfaceView.setOnClickListener {
             if(flag==1) {
                 flag=2
                 mediaPlayer.pause()
-                bt_play.setVisibility(View.VISIBLE)
-            }
-
-        }
-        bt_play.setOnClickListener {
-            if(flag==1) {
-                flag=2
-                mediaPlayer.pause()
-            }
-            else if(flag==2) {
-                flag=1
-                mediaPlayer.start()
-                playPic()
             }
         }
-
         val chose=intent.getStringExtra("message")
         when (chose.toString()){
             "two"->{
@@ -71,19 +54,37 @@ class MyMediaPlayer : AppCompatActivity() {
                 me3uSource()
             }
             }
-        playPic()
-
+        //playPic()
     }
 
     fun localSource() {
         mediaPlayer.reset()
-        mediaPlayer.setDataSource(Environment.getExternalStorageDirectory().absolutePath + "/star.mp4")
+        //mediaPlayer.setDataSource(Environment.getExternalStorageDirectory().absolutePath + "/star.mp4")
+        mediaPlayer.setDataSource(this ,Uri.parse("android.resource://com.example.xiyu_sx.videotest/"+R.raw.asddd))
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
         var holder=surfaceView.holder
         holder.addCallback(MyCallBack())
         mediaPlayer.prepare()
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.start()
+            seekBar.setMax(mediaPlayer.duration)
+            val string=(mediaPlayer.duration/1000/60).toString()+":"+(mediaPlayer.duration/1000%60).toString()
+            text2.setText(string)
+            handler.postDelayed(runnable, 1000);
+
+//            if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api 19:Android 4.4
+//                val v = this.window.decorView
+//                v.systemUiVisibility = View.GONE
+//            } else if (Build.VERSION.SDK_INT >= 19) {
+//                //for new api versions.
+//                val decorView = window.decorView
+//                val uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+//                View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+//                View.SYSTEM_UI_FLAG_IMMERSIVE
+//                decorView.setSystemUiVisibility(uiOptions)
+//                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
+//            }
+//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
          //   mediaPlayer.setDisplay(surfaceView.holder)
         }
     }
@@ -110,11 +111,10 @@ class MyMediaPlayer : AppCompatActivity() {
         mediaPlayer.reset()
         mediaPlayer.setDataSource(this,uri)
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-        Log.i("qw","qw")
         var holder=surfaceView.holder
         holder.addCallback(MyCallBack())
         mediaPlayer.prepare()
-        Log.i("qw","qw")
+        Log.e("m3u8","mmmmmmmmmmmmmmmm1")
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.start()
             //   mediaPlayer.setDisplay(surfaceView.holder)
@@ -122,11 +122,10 @@ class MyMediaPlayer : AppCompatActivity() {
         }
     }
 
-    fun playPic(){ Handler().postDelayed(Runnable { bt_play.setVisibility(View.GONE) },500)}
-    fun playPic2(){ Handler().postDelayed(Runnable { bt_play.setVisibility(View.VISIBLE) },1000)}
+ //   fun playPic(){ Handler().postDelayed(Runnable { bt_play.setVisibility(View.GONE) },500)}
+
     private inner class MyCallBack : SurfaceHolder.Callback {
         override fun surfaceCreated(holder: SurfaceHolder) {
-            Log.i("qw","qw")
             mediaPlayer.setDisplay(holder)
         }
 

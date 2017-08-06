@@ -21,6 +21,7 @@
         </activity>
         <activity android:name=".MyMediaPlayer"/>
         <activity android:name=".TextureView"/>
+        <activity android:name=".VideoView"/>
     </application>
 
 </manifest>

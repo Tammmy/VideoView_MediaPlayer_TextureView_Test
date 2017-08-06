@@ -10,79 +10,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/surfaceView"
         />
-    <LinearLayout
+    <include
+        android:id="@+id/surface"
+        layout="@layout/play_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:layout_centerInParent="true"
-        >
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="10dp">
-            <SeekBar
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/seekBar"
-                android:visibility="invisible"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:orientation="horizontal"
-            android:background="#00000000"
-            >
-            <LinearLayout
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-
-            <LinearLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:id="@+id/bt_left"
-                android:orientation="vertical"
-                />
-
-            <LinearLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:gravity="center" />
-            <LinearLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:id="@+id/bt_play"
-                android:orientation="vertical"
-                android:background="@drawable/play"
-                />
-            <LinearLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:gravity="center" />
-            <LinearLayout
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:id="@+id/bt_right"
-                android:orientation="vertical"
-                android:background="@drawable/full_screen"
-                android:visibility="invisible"
-                />
-
-            <LinearLayout
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"/>
-            </LinearLayout>
-        </LinearLayout>
+        android:layout_height="70dp"
+        />
 
 
 </RelativeLayout>
