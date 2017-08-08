@@ -1,8 +1,10 @@
 package com.example.xiyu_sx.videotest
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
@@ -17,61 +19,88 @@ import kotlinx.android.synthetic.main.play_layout.*
 /**
  * Created by xiyu_sx on 2017/7/25.
  */
-class MyMediaPlayer : AppCompatActivity() {
-    var handler = Handler()
+class MyMediaPlayer : AppCompatActivity(),View.OnClickListener {
 
+    var mediaPlayer = MediaPlayer()
+    var handler = Handler()
     var runnable: Runnable = object : Runnable {
         override fun run() {
-            // TODO Auto-generated method stub
             //要做的事情
+            Log.e("ttttttttt",mediaPlayer.currentPosition.toString())
             seekBar.setProgress(mediaPlayer.currentPosition)
-            Log.e("ttttttttt",mediaPlayer.currentPosition
-                    .toString())
+            if((mediaPlayer.currentPosition/1000%60)<10) {
+                text1.setText((mediaPlayer.currentPosition / 1000 / 60).toString() + ":0" + (mediaPlayer.currentPosition / 1000 % 60).toString())
+            }else{
+                text1.setText((mediaPlayer.currentPosition / 1000 / 60).toString() + ":" + (mediaPlayer.currentPosition / 1000 % 60).toString())
+            }
             handler.postDelayed(this, 1000)
         }
     }
-
-    var flag =1
-    var mediaPlayer = MediaPlayer()
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.media_play)
-        surfaceView.setOnClickListener {
-            if(flag==1) {
-                flag=2
-                mediaPlayer.pause()
-            }
-        }
-        val chose=intent.getStringExtra("message")
-        when (chose.toString()){
-            "two"->{
-                localSource()
-            }
-            "four"->{
-                netSource()
-            }
-            "five"->{
-                me3uSource()
-            }
-            }
-        //playPic()
+    companion object {
+        var flag =1
+        var flag_position=1
     }
 
-    fun localSource() {
-        mediaPlayer.reset()
-        //mediaPlayer.setDataSource(Environment.getExternalStorageDirectory().absolutePath + "/star.mp4")
-        mediaPlayer.setDataSource(this ,Uri.parse("android.resource://com.example.xiyu_sx.videotest/"+R.raw.asddd))
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-        var holder=surfaceView.holder
-        holder.addCallback(MyCallBack())
-        mediaPlayer.prepare()
-        mediaPlayer.setOnPreparedListener {
-            mediaPlayer.start()
-            seekBar.setMax(mediaPlayer.duration)
-            val string=(mediaPlayer.duration/1000/60).toString()+":"+(mediaPlayer.duration/1000%60).toString()
-            text2.setText(string)
-            handler.postDelayed(runnable, 1000);
 
+    @SuppressLint("SwitchIntDef")
+    override fun onClick(v: View?) {
+
+        when(v?.getId()){
+            R.id.surfaceView->{
+                play_control()
+            }
+            R.id.full_screen-> {
+                mediaPlayer.pause()
+                flag_position = mediaPlayer.getCurrentPosition()
+                when (getRequestedOrientation()) {
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
+                        Log.e("横向转竖向", "right")
+                        //切换竖屏
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+                        mediaPlayer.seekTo(flag_position)
+                    }
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+                        //切换横屏
+                        Log.e("竖向转横向", "right")
+                        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
+                        mediaPlayer.seekTo(flag_position)
+                    }
+                }
+            }
+            R.id.play_pause->{
+                if(flag==1) {
+                    flag=2
+                    mediaPlayer.pause()
+                }
+            }
+        }
+    }
+
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        Log.e("走了oNcREATE方法","right")
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.media_play)
+        val chose=intent.getStringExtra("message")
+        when (chose.toString()){
+                "two"->{
+                    localSource()
+                }
+                "four"->{
+                    netSource()
+                }
+                "five"->{
+                    me3uSource()
+                }
+            }
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
+        full_screen.setOnClickListener(this)
+        }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        Log.e("走了这个方法","right")
 //            if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api 19:Android 4.4
 //                val v = this.window.decorView
 //                v.systemUiVisibility = View.GONE
@@ -85,27 +114,39 @@ class MyMediaPlayer : AppCompatActivity() {
 //                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
 //            }
 //            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
-         //   mediaPlayer.setDisplay(surfaceView.holder)
+
+    }
+
+    fun localSource() {
+        mediaPlayer.reset()
+        //mediaPlayer.setDataSource(Environment.getExternalStorageDirectory().absolutePath + "/star.mp4")
+        mediaPlayer.setDataSource(this ,Uri.parse("android.resource://com.example.xiyu_sx.videotest/"+R.raw.asddd))
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
+        val holder=surfaceView.holder
+        holder.addCallback(MyCallBack())
+        mediaPlayer.prepare()
+        mediaPlayer.setOnPreparedListener {
+            mediaPlayer.start()
+            seekBar.setMax(mediaPlayer.duration)
+            val string=(mediaPlayer.duration/1000/60).toString()+":"+(mediaPlayer.duration/1000%60).toString()
+            text2.setText(string)
         }
     }
+
     fun netSource(){
         val uri= Uri.parse("http://220.194.199.176/7/z/h/t/x/zhtxzqhavcpxefedqpmeujscdjwuqx/hc.yinyuetai.com/6899015D81C74332A7D4F0F81E9B8CF3.mp4?sc=a4aca31f34d67f5b")
         mediaPlayer.reset()
         mediaPlayer.setDataSource(this,uri)
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC)
-        Log.i("qw","qw")
         var holder=surfaceView.holder
         holder.addCallback(MyCallBack())
         mediaPlayer.prepare()
-        Log.i("qw","qw")
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.start()
-         //   mediaPlayer.setDisplay(surfaceView.holder)
         }
     }
-    fun me3uSource(){
 
-        Log.e("m3u8","mmmmmmmmmmmmmmmm")
+    fun me3uSource(){
         /*http://streaming.youku.com/live2play/klcd11.m3u8?auth_key=1527043875-0-0-ff81b5c5e9c04df7ab88b3f20ddba94e*/
         val uri=Uri.parse("http://streaming.youku.com/live2play/klcd11.m3u8?auth_key=1527043875-0-0-ff81b5c5e9c04df7ab88b3f20ddba94e")
         mediaPlayer.reset()
@@ -114,28 +155,42 @@ class MyMediaPlayer : AppCompatActivity() {
         var holder=surfaceView.holder
         holder.addCallback(MyCallBack())
         mediaPlayer.prepare()
-        Log.e("m3u8","mmmmmmmmmmmmmmmm1")
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.start()
-            //   mediaPlayer.setDisplay(surfaceView.holder)
             /*live_jia_public/_LC_RE_non_360H087656115010745441497565_CX/index.m3u8*/
         }
     }
 
- //   fun playPic(){ Handler().postDelayed(Runnable { bt_play.setVisibility(View.GONE) },500)}
+    fun  play_control(){
+        when(flag){
+            1->{
+                surface.setVisibility(View.GONE)
+                flag=2
+            }
+            2->{
+                surface.setVisibility(View.VISIBLE)
+                flag=1
+            }
+        }
+    }
 
     private inner class MyCallBack : SurfaceHolder.Callback {
         override fun surfaceCreated(holder: SurfaceHolder) {
+            Log.e("bbbbbbbbbbbbbbbbbb","3")
             mediaPlayer.setDisplay(holder)
+            mediaPlayer.seekTo(flag_position)
+            handler.postDelayed(runnable,1000)
+            Log.e("sssssssssssssss",flag_position.toString())
         }
-
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
 
         }
-
         override fun surfaceDestroyed(holder: SurfaceHolder) {
                 mediaPlayer.release()
                 surfaceView.destroyDrawingCache()
+                handler.removeCallbacks(runnable)
+                Log.e("bbbbbbbbbbbbbbbbbb","5")
         }
     }
+
 }
