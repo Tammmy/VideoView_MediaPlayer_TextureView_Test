@@ -10,16 +10,19 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MyMediaPlayer"/>
+        <activity android:name=".MyMediaPlayer"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            />
         <activity android:name=".TextureView"/>
         <activity android:name=".VideoView"/>
     </application>

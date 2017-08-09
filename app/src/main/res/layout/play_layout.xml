@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="70dp"
+    android:layout_height="60dp"
     android:background="#70000000"
     android:id="@+id/play_control"
     >
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/_play"
         android:orientation="horizontal"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         >
         <TextView
             android:layout_width="wrap_content"
@@ -64,7 +64,7 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
+                android:id="@+id/play_left"
                 android:src="@drawable/left"
                 />
         </LinearLayout>
@@ -110,7 +110,7 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
+                android:id="@+id/play_right"
                 android:src="@drawable/right"
                 />
         </LinearLayout>
@@ -126,6 +126,7 @@
                 android:layout_height="match_parent"
                 android:id="@+id/full_screen"
                 android:src="@drawable/full_screen"
+                android:padding="2dp"
                 />
         </LinearLayout>
     </LinearLayout>

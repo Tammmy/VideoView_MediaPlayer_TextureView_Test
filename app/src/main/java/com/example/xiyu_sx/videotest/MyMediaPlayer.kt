@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
@@ -12,22 +13,29 @@ import android.os.*
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.*
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
+import android.widget.SeekBar
 import kotlinx.android.synthetic.main.media_play.*
 import kotlinx.android.synthetic.main.play_layout.*
+import android.view.View.SYSTEM_UI_FLAG_FULLSCREEN
+import android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+
+
 
 
 /**
  * Created by xiyu_sx on 2017/7/25.
  */
-class MyMediaPlayer : AppCompatActivity(),View.OnClickListener {
+class MyMediaPlayer : AppCompatActivity(),View.OnClickListener , SeekBar.OnSeekBarChangeListener {
 
     var mediaPlayer = MediaPlayer()
     var handler = Handler()
     var runnable: Runnable = object : Runnable {
         override fun run() {
             //要做的事情
-            Log.e("ttttttttt",mediaPlayer.currentPosition.toString())
-            seekBar.setProgress(mediaPlayer.currentPosition)
+            flag_position=mediaPlayer.currentPosition
+            seekBar.setProgress(flag_position)
             if((mediaPlayer.currentPosition/1000%60)<10) {
                 text1.setText((mediaPlayer.currentPosition / 1000 / 60).toString() + ":0" + (mediaPlayer.currentPosition / 1000 % 60).toString())
             }else{
@@ -39,38 +47,52 @@ class MyMediaPlayer : AppCompatActivity(),View.OnClickListener {
     companion object {
         var flag =1
         var flag_position=1
+        var flag_seekbarProgress=0
     }
-
 
     @SuppressLint("SwitchIntDef")
     override fun onClick(v: View?) {
-
         when(v?.getId()){
             R.id.surfaceView->{
+                Log.e("surface","click!!!!")
                 play_control()
             }
             R.id.full_screen-> {
-                mediaPlayer.pause()
-                flag_position = mediaPlayer.getCurrentPosition()
-                when (getRequestedOrientation()) {
-                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
+                Log.e("getRequestedOrientation",getRequestedOrientation().toString()+ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE.toString()+ActivityInfo.SCREEN_ORIENTATION_PORTRAIT.toString())
+                if(getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ) {
+
                         Log.e("横向转竖向", "right")
-                        //切换竖屏
+                        //切换竖屏\
                         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-                        mediaPlayer.seekTo(flag_position)
                     }
-                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+                   else{
                         //切换横屏
                         Log.e("竖向转横向", "right")
                         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)
-                        mediaPlayer.seekTo(flag_position)
                     }
                 }
-            }
             R.id.play_pause->{
                 if(flag==1) {
                     flag=2
                     mediaPlayer.pause()
+                }else{
+                    mediaPlayer.start()
+                }
+            }
+            R.id.play_right-> {
+                var seek = mediaPlayer.duration / 20 + mediaPlayer.getCurrentPosition()
+                if (seek <= mediaPlayer.duration) {
+                    mediaPlayer.seekTo(seek)
+                } else {
+                    mediaPlayer.seekTo((mediaPlayer.duration-1000))
+                }
+            }
+            R.id.play_left->{
+                var seek = mediaPlayer.duration / 20 - mediaPlayer.getCurrentPosition()
+                if (seek>=0) {
+                    mediaPlayer.seekTo(seek)
+                } else {
+                    mediaPlayer.seekTo(0)
                 }
             }
         }
@@ -90,33 +112,35 @@ class MyMediaPlayer : AppCompatActivity(),View.OnClickListener {
                 "four"->{
                     netSource()
                 }
-                "five"->{
+                "six"->{
                     me3uSource()
                 }
             }
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER);
         full_screen.setOnClickListener(this)
+        surfaceView.setOnClickListener(this)
+        play_pause.setOnClickListener(this)
+        play_left.setOnClickListener(this)
+        play_right.setOnClickListener(this)
+        seekBar.setOnSeekBarChangeListener(this)
         }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
         Log.e("走了这个方法","right")
-//            if (Build.VERSION.SDK_INT > 11 && Build.VERSION.SDK_INT < 19) { // lower api 19:Android 4.4
-//                val v = this.window.decorView
-//                v.systemUiVisibility = View.GONE
-//            } else if (Build.VERSION.SDK_INT >= 19) {
-//                //for new api versions.
-//                val decorView = window.decorView
-//                val uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-//                View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-//                View.SYSTEM_UI_FLAG_IMMERSIVE
-//                decorView.setSystemUiVisibility(uiOptions)
-//                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
-//            }
-//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        val resources = this.getResources()
+        val resourceId = resources.getIdentifier("navigation_bar_height","dimen", "android")
+        val height = resources.getDimensionPixelSize(resourceId)
+
+        surfaceView.setLayoutParams(RelativeLayout.LayoutParams(windowManager.defaultDisplay.width+height,windowManager.defaultDisplay.height))
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+
+        val decorView = window.decorView
+        val uiOptions = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN
+        decorView.systemUiVisibility = uiOptions
+
 
     }
-
     fun localSource() {
         mediaPlayer.reset()
         //mediaPlayer.setDataSource(Environment.getExternalStorageDirectory().absolutePath + "/star.mp4")
@@ -143,6 +167,9 @@ class MyMediaPlayer : AppCompatActivity(),View.OnClickListener {
         mediaPlayer.prepare()
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.start()
+            seekBar.setMax(mediaPlayer.duration)
+            val string=(mediaPlayer.duration/1000/60).toString()+":"+(mediaPlayer.duration/1000%60).toString()
+            text2.setText(string)
         }
     }
 
@@ -157,7 +184,7 @@ class MyMediaPlayer : AppCompatActivity(),View.OnClickListener {
         mediaPlayer.prepare()
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.start()
-            /*live_jia_public/_LC_RE_non_360H087656115010745441497565_CX/index.m3u8*/
+
         }
     }
 
@@ -174,13 +201,24 @@ class MyMediaPlayer : AppCompatActivity(),View.OnClickListener {
         }
     }
 
+    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+        flag_seekbarProgress=progress
+        if(flag_position+2000<= flag_seekbarProgress){mediaPlayer.seekTo(flag_seekbarProgress)}
+    }
+
+    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+    }
+
+    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+        mediaPlayer.seekTo(flag_seekbarProgress)
+    }
+
     private inner class MyCallBack : SurfaceHolder.Callback {
         override fun surfaceCreated(holder: SurfaceHolder) {
             Log.e("bbbbbbbbbbbbbbbbbb","3")
             mediaPlayer.setDisplay(holder)
-            mediaPlayer.seekTo(flag_position)
             handler.postDelayed(runnable,1000)
-            Log.e("sssssssssssssss",flag_position.toString())
         }
         override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
 
@@ -189,8 +227,6 @@ class MyMediaPlayer : AppCompatActivity(),View.OnClickListener {
                 mediaPlayer.release()
                 surfaceView.destroyDrawingCache()
                 handler.removeCallbacks(runnable)
-                Log.e("bbbbbbbbbbbbbbbbbb","5")
         }
     }
-
 }
