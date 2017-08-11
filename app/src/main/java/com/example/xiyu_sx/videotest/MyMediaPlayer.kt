@@ -12,6 +12,7 @@ import android.net.Uri
 import android.os.*
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.util.TypedValue
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -60,11 +61,11 @@ class MyMediaPlayer : AppCompatActivity(),View.OnClickListener , SeekBar.OnSeekB
             R.id.full_screen-> {
                 Log.e("getRequestedOrientation",getRequestedOrientation().toString()+ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE.toString()+ActivityInfo.SCREEN_ORIENTATION_PORTRAIT.toString())
                 if(getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ) {
-
-                        Log.e("横向转竖向", "right")
+                    Log.e("横向转竖向", "right")
                         //切换竖屏\
                         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
-                    }
+
+                }
                    else{
                         //切换横屏
                         Log.e("竖向转横向", "right")
@@ -131,8 +132,16 @@ class MyMediaPlayer : AppCompatActivity(),View.OnClickListener , SeekBar.OnSeekB
         val resources = this.getResources()
         val resourceId = resources.getIdentifier("navigation_bar_height","dimen", "android")
         val height = resources.getDimensionPixelSize(resourceId)
+        if(getRequestedOrientation()==ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE ) {
+            surfaceView.setLayoutParams(RelativeLayout.LayoutParams(windowManager.defaultDisplay.width + height, windowManager.defaultDisplay.height))
 
-        surfaceView.setLayoutParams(RelativeLayout.LayoutParams(windowManager.defaultDisplay.width+height,windowManager.defaultDisplay.height))
+        }else {
+            var temp:Int
+            var temp1:Float
+            temp1=200.toFloat()
+            temp= TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,temp1,getResources().getDisplayMetrics()).toInt()
+            surfaceView.setLayoutParams(RelativeLayout.LayoutParams(windowManager.defaultDisplay.width,temp))
+        }
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
 
         val decorView = window.decorView

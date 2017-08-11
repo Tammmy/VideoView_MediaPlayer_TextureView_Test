@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import kotlinx.android.synthetic.main.texture_view.*
 import android.content.pm.ActivityInfo
+import android.media.MediaCodec
+import android.os.Handler
 import android.view.*
 import android.view.TextureView
 import android.widget.SeekBar
@@ -20,10 +22,36 @@ import kotlinx.android.synthetic.main.play_layout.*
 /**
  * Created by xiyu_sx on 2017/7/28.
  */
-class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener {
+class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener,View.OnClickListener {
+    override fun onClick(v: View?) {
+
+    }
+
+
 
     lateinit var surface: Surface
-    lateinit var mediaPlayer: MediaPlayer
+    var mediaPlayer = MediaPlayer()
+    var handler = Handler()
+    var runnable: Runnable = object : Runnable {
+        override fun run() {
+            //要做的事情
+            flag_position=mediaPlayer.currentPosition
+            seekBar.setProgress(flag_position)
+            if((mediaPlayer.currentPosition/1000%60)<10) {
+                text1.setText((mediaPlayer.currentPosition / 1000 / 60).toString() + ":0" + (mediaPlayer.currentPosition / 1000 % 60).toString())
+            }else{
+                text1.setText((mediaPlayer.currentPosition / 1000 / 60).toString() + ":" + (mediaPlayer.currentPosition / 1000 % 60).toString())
+            }
+            handler.postDelayed(this, 1000)
+        }
+    }
+    companion object {
+        var flag =1
+        var flag_position=1
+        var flag_seekbarProgress=0
+    }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,8 +92,8 @@ class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener {
 
 
     override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean {
-//        mediaPlayer.stop()
-//        mediaPlayer.release()
+        mediaPlayer.stop()
+        mediaPlayer.release()
         return true
     }
 
@@ -78,11 +106,9 @@ class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener {
         System.out.println("onSurfaceTextureUpdated onSurfaceTextureUpdated")
     }
 
-
     override fun onSurfaceTextureAvailable(p0: SurfaceTexture?, p1: Int, p2: Int) {
         var surface = Surface(p0)
         val uri = Uri.parse("http://streaming.youku.com/live2play/klcd11.m3u8?auth_key=1527043875-0-0-ff81b5c5e9c04df7ab88b3f20ddba94e")
-        val mediaPlayer = MediaPlayer()
         mediaPlayer.reset()
         mediaPlayer.setDataSource(this, uri)
         mediaPlayer.setSurface(surface)
@@ -90,11 +116,10 @@ class TextureView:AppCompatActivity(),TextureView.SurfaceTextureListener {
         mediaPlayer.prepare()
         mediaPlayer.setOnPreparedListener {
             mediaPlayer.start()
-
+           // gradle MediaCodec  grooy 性能参数
             if (requestedOrientation != ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
                 requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
-
         }
     }
 
